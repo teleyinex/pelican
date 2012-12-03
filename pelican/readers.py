@@ -148,7 +148,10 @@ class MarkdownReader(Reader):
         metadata = {}
         for name, value in md.Meta.items():
             name = name.lower()
-            metadata[name] = self.process_metadata(name, value[0])
+            if name == 'funders' or name == 'partners':
+                metadata[name] = unicode(value[0]).split(',')
+            else:
+                metadata[name] = self.process_metadata(name, value[0])
         return content, metadata
 
 
