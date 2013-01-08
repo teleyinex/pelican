@@ -29,19 +29,23 @@ class BibTexActivity():
             returns a list of published papers, articles, journals, etc.
         """
 
-        data = self.parser.parse_files(self.bibtex_file)
+        data = self.parser.parse_file(self.bibtex_file)
 
         years = {}
         for publication in data.entries.keys():
-            if data.entries[publication].fields.get('year'):
-                years[int(data.entries[publication])] = data.entries[publication]
-        year_keys = years.keys()
-        year_keys.sort()
-        pubs = []
-        for year in year_keys:
-            pubs.append(years[year])
+            y = data.entries[publication].fields.get('year')
+            if y not in years.keys():
+                years[int(y)] = []
+            else:
+                years[int(y)].append(data.entries[publication])
+        years_keys = years.keys()
+        years_keys.sort()
 
-        return pubs
+        for publication in data.entries.keys():
+            y = int(data.entries[publication].fields.get('year'))
+            if y in years_keys:
+                years[y].append(data.entries[publication])
+        return years
 
 
 def fetch_bibtex_activity(gen, metadata):
@@ -52,7 +56,7 @@ def fetch_bibtex_activity(gen, metadata):
     """
 
     if 'BIBTEX_FILE' in gen.settings.keys():
-        gen.context['BIBTEX_FILE'] = gen.plugin_instance.fetch()
+        gen.context['publications'] = gen.plugin_instance.fetch()
 
 
 def bibtex_parser_initialization(generator):
